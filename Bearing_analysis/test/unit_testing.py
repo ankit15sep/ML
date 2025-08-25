@@ -1,0 +1,36 @@
+df_original = pd.read_hdf('data/raw/combined_test1.h5', key='df')
+df_resample = pd.read_hdf('data/raw/combined_test1_resample_1000Hz.h5', key='df')
+sos = signal.butter(4, 1000, btype='low', analog=False, output='sos', fs=20000)
+filt = signal.sosfilt(sos, df_original['bearing_1_x'].to_numpy())
+
+# print(df_resample.head(5))
+# print(df_original.head(5))
+# print(df_original.shape)
+# print(df_resample.shape)
+# # print(df_resample['bearing_1_x'].to_numpy())
+#
+t_original = np.arange(df_original.shape[0]) / 20000
+t_resample = np.arange(df_resample.shape[0]) / 1000
+# # print(t_original)
+#
+plt.plot(t_original, df_original['bearing_1_x'].to_numpy(), label='Original 20kHz', alpha=0.5, color='blue')
+plt.plot(t_resample, df_resample['bearing_1_x'].to_numpy(), label='Resampled 1kHz', alpha=0.5, color='orange')
+plt.plot(t_original, filt, label='Filtered Original Signal', alpha=0.5, color='green')
+# plt.plot(t_original[::20], df_original['bearing_1_x'].to_numpy()[::20], 'o', label='Original 20kHz Sampled Points', markersize=2, color='red')
+plt.xlabel('Time (s)')
+plt.ylabel('Bearing 1 X-axis Acceleration')
+plt.title('Bearing 1 X-axis Acceleration Comparison')
+plt.legend()
+plt.show()
+
+f_og, pxx_og = get_psd(df_original['bearing_1_x'].to_numpy(), fs=20000, nperseg=16384)
+f_re, pxx_re = get_psd(df_resample['bearing_1_x'].to_numpy(), fs=1000, nperseg=1024)
+f_filt, pxx_filt = get_psd(filt, fs=20000, nperseg=16384)
+plt.semilogy(f_og, pxx_og, label='Original 20kHz')
+plt.semilogy(f_re, pxx_re, label='Resampled 1kHz')
+plt.semilogy(f_filt, pxx_filt, label='Filtered Original Signal')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Power Spectral Density (PSD)')
+plt.title('Power Spectral Density Comparison')
+plt.legend()
+plt.show()
