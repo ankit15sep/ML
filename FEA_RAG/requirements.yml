@@ -1,0 +1,10 @@
+name: fea-rag-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - sentence-transformers
+      - faiss-cpu
+      - ollama
